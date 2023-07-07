@@ -1,40 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Code Quiz</title>
   <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <body>
-  <header>
-    <h1>Coding Quiz</h1>
-  </header>
+<header>
+  <h1>Coding Quiz</h1>
+  <button id="off-btn" class="hidden">Quit</button>
+</header>
 
-  <main>
-    <!--First screen-->
+<main>
+  <!--First screen-->
   <section id="start-screen">
     <h2>Welcome to the Quiz</h2>
     <button id="start-btn">Start Quiz</button>
   </section>
-    <!--Second screen-->
+  <!--Second screen-->
   <section id="question-screen" class="hidden">
     <h2 id="question-text"></h2>
     <div id="choices"></div>
-    <p id="timer">Time: </p>
+    <p id="timer"></p>
   </section>
-    <!--Third screen-->
+  <!--Third screen-->
   <section id="game-over-screen" class="hidden">
-    <h1>Game Over</h1>
+    <h2>Game Over</h2>
     <p>Final Score: <span id="final-score"></span></p>
     <form id="score-form">
-      <label for="initials">Enter Initials:</label>
-      <input type="text" id="initials">
+      <label for="name">Enter your name:</label>
+      <input type="text" id="name" required>
       <button type="submit">Save Score</button>
     </form>
   </section>
-  </main>
-  <p id="score" class="hidden"></p>
+  <!--Score screen-->
+  <section id="score-screen">
+    <h2>Scores</h2>
+      <p id="scores-element"><span id="scores-name"></span> <span id="scores-score"></span></p>
+  </section>
+</main>
+
+<footer>
+  <p>© 2023 Didi's</p>
+</footer>
+
 <script src="./assets/js/script.js"></script>
 </body>
 </html>

@@ -1,89 +1,136 @@
-// Quiz object
-var quiz = {
-  currentQuestionIndex: 0,
-  timeLeft: 60,
-  timerInterval: null,
-  score: 0,
-  questions: [
-    {
-      question: "What is the capital city of France?",
-      choices: ["Paris", "London", "Berlin", "Madrid"],
-      correctAnswer: 0
-    },
-    {
-      question: "Which year was JavaScript first released?",
-      choices: ["1996", "1995", "2001", "2005"],
-      correctAnswer: 1
-    },
-    // Add more questions...
-  ],
-  startQuiz: function () {
-    // Hide the start screen and show the question screen
-    document.getElementById("start-screen").classList.add("hidden");
-    document.getElementById("question-screen").classList.remove("hidden");
-    // Start the timer
-    this.timerInterval = setInterval(() => {
-      this.timeLeft--;
-      this.updateTimer();
-      if (this.timeLeft <= 0) {
-        this.endQuiz();
-      }
-    }, 1000);
-    // Load the first question
-    this.loadQuestion();
+// Global variable
+let timeLeft = 30;
+let score = 0;
+
+
+// Quiz questions
+let questions = [
+  {
+    question: 'Which year was JavaScript first released?',
+    choices: ['1996', '1995', '1991', '2001'],
+    correctAnswer: 1
   },
-  loadQuestion: function () {
-    var questionTextElement = document.getElementById("question-text");
-    var choicesElement = document.getElementById("choices");
-    var currentQuestion = this.questions[this.currentQuestionIndex];
-    questionTextElement.textContent = currentQuestion.question;
-    choicesElement.innerHTML = "";
-    // Create choice buttons for each option
-    currentQuestion.choices.forEach((choice, index) => {
-      var choiceButton = document.createElement("button");
-      choiceButton.textContent = choice;
-      choiceButton.addEventListener("click", this.checkAnswer.bind(this));
-      choicesElement.appendChild(choiceButton);
-    });
+  {
+    question: 'What is the DOM?',
+    choices: ['Document Online Model', 'Directory Of Models', 'Document Object Model', 'Direct Online Maker'],
+    correctAnswer: 2
   },
-  checkAnswer: function (event) {
-    var selectedAnswer = event.target.textContent;
-    var currentQuestion = this.questions[this.currentQuestionIndex];
-    if (selectedAnswer === currentQuestion.choices[currentQuestion.correctAnswer]) {
-      // Correct answer
-      this.score++;
-    } else {
-      // Incorrect answer
-      this.timeLeft -= 10; // Deduct 10 seconds for incorrect answer
-      this.updateTimer();
+  {
+    question: 'Which method is used to add an element at the end of an array in JavaScript?',
+    choices: ['push()', 'pop()', 'shift()', 'unshift()'],
+    correctAnswer: 0
+  },
+  {
+    question: 'What does the "JSON" acronym stand for in JavaScript?',
+    choices: ['JavaScript Operator Numeric', 'JavaScript Output Name', 'JavaScript Option Navigator',
+      'JavaScript Object Notation'],
+    correctAnswer: 3
+  },
+  {
+    question: 'What is the purpose of the "addEventListener" method in JavaScript?',
+    choices: ['To add a new element to the DOM', 'To remove an element from the DOM',
+      'To add an event handler function to an HTML element', 'To change the CSS styling of an element'],
+    correctAnswer: 2
+  }
+];
+
+let questionIndex = questions.length - 1;
+
+// Start the game
+const startQuiz = () => {
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('question-screen').classList.remove('hidden');
+  document.getElementById('off-btn').classList.remove('hidden');
+  // Start the timer
+  const intervalID = setInterval(function () {
+    // Call the function that update the displayed time
+    updateTimer();
+    // When the interval reach zero call the function that ends the game and pass as parameter the id of the interval
+    if (timeLeft === 0) {
+      endQuiz(intervalID);
     }
-    this.currentQuestionIndex++;
-    if (this.currentQuestionIndex === this.questions.length) {
-      // End the quiz if all questions are answered
-      this.endQuiz();
-    } else {
-      // Load the next question
-      this.loadQuestion();
-    }
-  },
-  endQuiz: function () {
-    clearInterval(this.timerInterval);
-    this.updateTimer();
-    // Hide the question screen and show the game over screen
-    document.getElementById("question-screen").classList.add("hidden");
-    document.getElementById("game-over-screen").classList.remove("hidden");
-    // Display the final score
-    document.getElementById("final-score").textContent = this.score.toString();
-  },
-  updateTimer: function () {
-    document.getElementById("timer").textContent = "Time: " + this.timeLeft;
+
+    timeLeft--;
+  }, 1000);
+  // Load the first question
+  loadQuestion();
+}
+
+// Update the displayed time
+const updateTimer = () => {
+  document.getElementById('timer').textContent = `Timer: ${timeLeft}`;
+}
+
+const loadQuestion = () => {
+  let question = document.getElementById('question-text');
+  let choices = document.getElementById('choices');
+  let currentQuestion = questions[questionIndex];
+
+  question.textContent = currentQuestion.question;
+  // Cleans the choice buttons in each interaction
+  choices.innerHTML = '';
+
+  for (let i = 0; i < currentQuestion.choices.length; i++) {
+    let choiceButton = document.createElement('button');
+    choiceButton.textContent = currentQuestion.choices[i];
+    choiceButton.classList.add('choice-button')
+    choices.appendChild(choiceButton);
+    choiceButton.addEventListener('click', checkAnswer);
+
   }
 };
-// Event listener for starting the quiz
-document.getElementById("start-btn").addEventListener("click", quiz.startQuiz.bind(quiz));
-// Event listener for saving the score
-document.getElementById("score-form").addEventListener("submit", function (event) {
+
+const checkAnswer = (event) => {
+  let buttonAnswer = event.target.textContent;
+  let correctAnswer = questions[questionIndex].choices[questions[questionIndex].correctAnswer];
+
+
+  if (buttonAnswer === correctAnswer) {
+    score++;
+    
+  } else {
+    timeLeft = timeLeft - 5;
+  }
+
+  questionIndex--;
+
+  if (questionIndex === -1) {
+    endQuiz();
+  } else {
+    loadQuestion();
+  }
+}
+
+const endQuiz = (intervalID) => {
+  document.getElementById('question-screen').classList.add('hidden');
+  document.getElementById('off-btn').classList.add('hidden');
+  document.getElementById('game-over-screen').classList.remove('hidden');
+  document.getElementById('final-score').textContent = score.toString();
+
+  clearInterval(intervalID);
+}
+
+const renderScore = () => {
+  let nameScore = JSON.parse(localStorage.getItem('nameScore'));
+
+if (nameScore !== null) {
+  document.getElementById('scores-name').textContent = `${nameScore.name} scored ${nameScore.score}`;
+}
+}
+
+renderScore();
+
+document.getElementById('start-btn').addEventListener('click', startQuiz);
+document.getElementById('off-btn').addEventListener('click', endQuiz);
+document.getElementById('score-form').addEventListener('submit', function (event) {
   event.preventDefault();
-  var initials = document.getElementById("initials").value;
-  // Save the initials and score to localStorage or a backend server
-});
+
+  let nameScore = {
+    name: document.getElementById('name').value,
+    score: score
+  }
+  console.log(nameScore.name, nameScore.score)
+  localStorage.setItem('nameScore',  JSON.stringify(nameScore));
+
+  console.log(name)
+})
