@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Coding Quiz</h1>
+  </header>
+
+  <main>
+    <!--First screen-->
+  <section id="start-screen">
+    <h2>Welcome to the Quiz</h2>
+    <button id="start-btn">Start Quiz</button>
+  </section>
+    <!--Second screen-->
+  <section id="question-screen" class="hidden">
+    <h2 id="question-text"></h2>
+    <div id="choices"></div>
+    <p id="timer">Time: </p>
+  </section>
+    <!--Third screen-->
+  <section id="game-over-screen" class="hidden">
+    <h1>Game Over</h1>
+    <p>Final Score: <span id="final-score"></span></p>
+    <form id="score-form">
+      <label for="initials">Enter Initials:</label>
+      <input type="text" id="initials">
+      <button type="submit">Save Score</button>
+    </form>
+  </section>
+  </main>
+  <p id="score" class="hidden"></p>
+<script src="./assets/js/script.js"></script>
+</body>
+</html>
