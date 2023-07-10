@@ -112,10 +112,22 @@ const endQuiz = (intervalID) => {
 
 const renderScore = () => {
   let nameScore = JSON.parse(localStorage.getItem('nameScore'));
+  let scoresElements = document.getElementById('scores-elements');
+  let elementsScoresElements = scoresElements.querySelectorAll('p');
+  console.log('length ', elementsScoresElements.length)
 
-if (nameScore !== null) {
-  document.getElementById('scores-name').textContent = `${nameScore.name} scored ${nameScore.score}`;
-}
+  if (nameScore !== null) {
+    console.log('holiii')
+    if (elementsScoresElements.length <= 3) {
+      console.log('hola')
+      let scoreElement = document.createElement('p');
+      scoreElement.textContent = `${nameScore.name} scored ${nameScore.score}`;
+
+      scoresElements.appendChild(scoreElement);
+      // document.getElementById('scores-name').textContent = `${nameScore.name} scored ${nameScore.score}`;
+    }
+  }
+
 }
 
 renderScore();
@@ -123,12 +135,13 @@ renderScore();
 document.getElementById('start-btn').addEventListener('click', startQuiz);
 document.getElementById('off-btn').addEventListener('click', endQuiz);
 document.getElementById('score-form').addEventListener('submit', function (event) {
-  event.preventDefault();
+  // event.preventDefault();
 
   let nameScore = {
     name: document.getElementById('name').value,
     score: score
   }
+  
   console.log(nameScore.name, nameScore.score)
   localStorage.setItem('nameScore',  JSON.stringify(nameScore));
 
