@@ -3,6 +3,8 @@
 This is a web application that allows to take a timed quiz on JavaScript fundamentals 
 and store their high scores. The app provides a way for students to gauge their progress compared to their peers.
 
+![JavaScript Quiz Web App](./assets/images/app.png)
+
 ## Table of Contents
 
 - [Features](#features)
