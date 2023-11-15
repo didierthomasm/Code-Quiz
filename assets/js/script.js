@@ -1,10 +1,11 @@
 // Global variable
 let timeLeft = 30;
 let score = 0;
-
+let intervalID;
+let questionIndex = 0;
 
 // Quiz questions
-let questions = [
+const questions = [
   {
     question: 'Which year was JavaScript first released?',
     choices: ['1996', '1995', '1991', '2001'],
@@ -34,116 +35,132 @@ let questions = [
   }
 ];
 
-let questionIndex = questions.length - 1;
+
 
 // Start the game
 const startQuiz = () => {
+  timeLeft = 30;
+  score = 0;
+  questionIndex = 0;
+
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('question-screen').classList.remove('hidden');
   document.getElementById('off-btn').classList.remove('hidden');
-  // Start the timer
-  const intervalID = setInterval(function () {
-    // Call the function that update the displayed time
-    updateTimer();
-    // When the interval reach zero call the function that ends the game and pass as parameter the id of the interval
-    if (timeLeft === 0) {
-      endQuiz(intervalID);
-    }
 
-    timeLeft--;
-  }, 1000);
+  // Start the timer
+  intervalID = setInterval(updateTimer, 1000);
+
   // Load the first question
   loadQuestion();
-}
+};
+
 
 // Update the displayed time
 const updateTimer = () => {
   document.getElementById('timer').textContent = `Timer: ${timeLeft}`;
-}
+  timeLeft--;
 
-const loadQuestion = () => {
-  let question = document.getElementById('question-text');
-  let choices = document.getElementById('choices');
-  let currentQuestion = questions[questionIndex];
-
-  question.textContent = currentQuestion.question;
-  // Cleans the choice buttons in each interaction
-  choices.innerHTML = '';
-
-  for (let i = 0; i < currentQuestion.choices.length; i++) {
-    let choiceButton = document.createElement('button');
-    choiceButton.textContent = currentQuestion.choices[i];
-    choiceButton.classList.add('choice-button')
-    choices.appendChild(choiceButton);
-    choiceButton.addEventListener('click', checkAnswer);
-
+  if (timeLeft < 0) {
+    endQuiz();
   }
 };
 
-const checkAnswer = (event) => {
-  let buttonAnswer = event.target.textContent;
-  let correctAnswer = questions[questionIndex].choices[questions[questionIndex].correctAnswer];
+// Load the current question
+const loadQuestion = () => {
+  let currentQuestion = questions[questionIndex];
+  document.getElementById('question-text').textContent = currentQuestion.question;
 
+  let choicesContainer = document.getElementById('choices');
+  choicesContainer.innerHTML = '';
+  currentQuestion.choices.forEach((choice, index) => {
+    let choiceButton = document.createElement('button');
+    choiceButton.textContent = choice;
+    choiceButton.classList.add('choice-button');
+    choiceButton.onclick = () => checkAnswer(index);
+    choicesContainer.appendChild(choiceButton);
+  });
+};
 
-  if (buttonAnswer === correctAnswer) {
+// Check if the selected answer is correct
+const checkAnswer = (selectedAnswerIndex) => {
+  let correctAnswerIndex = questions[questionIndex].correctAnswer;
+  if (selectedAnswerIndex === correctAnswerIndex) {
     score++;
-    
   } else {
-    timeLeft = timeLeft - 5;
+    timeLeft -= 5;
   }
 
-  questionIndex--;
-
-  if (questionIndex === -1) {
-    endQuiz();
-  } else {
+  questionIndex++;
+  if (questionIndex < questions.length) {
     loadQuestion();
+  } else {
+    endQuiz();
   }
-}
+};
 
-const endQuiz = (intervalID) => {
-  document.getElementById('question-screen').classList.add('hidden');
-  document.getElementById('off-btn').classList.add('hidden');
-  document.getElementById('game-over-screen').classList.remove('hidden');
-  document.getElementById('final-score').textContent = score.toString();
-
+// End the quiz
+const endQuiz = () => {
   clearInterval(intervalID);
-}
+  document.getElementById('question-screen').classList.add('hidden');
+  document.getElementById('game-over-screen').classList.remove('hidden');
+  document.getElementById('final-score').textContent = score;
 
-const renderScore = () => {
-  let nameScore = JSON.parse(localStorage.getItem('nameScore'));
-  let scoresElements = document.getElementById('scores-elements');
-  let elementsScoresElements = scoresElements.querySelectorAll('p');
-  console.log('length ', elementsScoresElements.length)
+/*  let playerName = prompt("Enter your name:", "Player");
+  saveScore(playerName);*/
+  renderScores();
+};
 
-  if (nameScore !== null) {
-    console.log('holiii')
-    if (elementsScoresElements.length <= 3) {
-      console.log('hola')
-      let scoreElement = document.createElement('p');
-      scoreElement.textContent = `${nameScore.name} scored ${nameScore.score}`;
-
-      scoresElements.appendChild(scoreElement);
-      // document.getElementById('scores-name').textContent = `${nameScore.name} scored ${nameScore.score}`;
-    }
+// Save the score to local storage
+const saveScore = (playerName) => {
+  let savedScores = JSON.parse(localStorage.getItem('scores')) || [];
+  if (savedScores.length >= 5) {
+    savedScores.shift();
   }
 
-}
+  savedScores.push({ name: playerName, score: score });
+  localStorage.setItem('scores', JSON.stringify(savedScores));
+};
 
-renderScore();
+// Render the scores
+const renderScores = () => {
+  let scoresContainer = document.getElementById('scores-elements');
+  scoresContainer.innerHTML = '';
 
+  let savedScores = JSON.parse(localStorage.getItem('scores')) || [];
+  savedScores.forEach((record) => {
+    let scoreElement = document.createElement('p');
+    scoreElement.textContent = `${record.name} scored ${record.score}`;
+    scoresContainer.appendChild(scoreElement);
+  });
+};
+
+// Quit button logic
+document.getElementById('off-btn').addEventListener('click', () => {
+  clearInterval(intervalID);
+  document.getElementById('game-over-screen').classList.add('hidden');
+  document.getElementById('start-screen').classList.remove('hidden');
+  // Reset variables
+  timeLeft = 30;
+  score = 0;
+  questionIndex = 0;
+});
+
+// Start button logic
 document.getElementById('start-btn').addEventListener('click', startQuiz);
-document.getElementById('off-btn').addEventListener('click', endQuiz);
-document.getElementById('score-form').addEventListener('submit', function (event) {
-  // event.preventDefault();
 
-  let nameScore = {
-    name: document.getElementById('name').value,
-    score: score
-  }
-  
-  console.log(nameScore.name, nameScore.score)
-  localStorage.setItem('nameScore',  JSON.stringify(nameScore));
+// Save score button logic
+document.getElementById('score-form').addEventListener('submit', function(event) {
+  event.preventDefault();
 
-  console.log(name)
-})
+  let playerName = document.getElementById('name').value; // Get the player's name from the form
+  saveScore(playerName); // Call saveScore with the player's name
+
+  // Clear the form field and hide the game over screen after saving the score
+  document.getElementById('name').value = '';
+  document.getElementById('game-over-screen').classList.add('hidden');
+  document.getElementById('start-screen').classList.remove('hidden');
+  document.getElementById('off-btn').classList.add('hidden');
+  renderScores();
+});
+
+renderScores();
